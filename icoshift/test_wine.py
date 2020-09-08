@@ -22,7 +22,7 @@ for i in range(X.shape[0]):
     plt.plot(ppm[7151:7550], X[i,7151:7550])
 # plt.show()
 
-lacInter = list(xrange(7551,7751))
+lacInter = list(range(7551,7751))
 options = np.array([2,1,0])
 
 print("iCOshift 1: aligns the whole spectra according to a reference signal selected (Ethanol CH3 resonance)")
