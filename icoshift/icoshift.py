@@ -220,17 +220,18 @@ def icoshift(xt,  xp,  inter='whole',  n='f', scale=None, coshift_preprocessing=
 
     xt_basis = xt
 
-    if xt == 'average':
-        xt = nanmean(xp, axis=0).reshape(1, -1)
+    if isinstance(xt, str):
+        if xt == 'average':
+            xt = nanmean(xp, axis=0).reshape(1, -1)
 
-    elif xt == 'median':
+        elif xt == 'median':
             xt = nanmedian(xp, axis=0).reshape(1, -1)
 
-    elif xt == 'average2':
+        elif xt == 'average2':
             xt = nanmean(xp, axis=0).reshape(1,-1)
             avg2_flag = True
 
-    elif xt == 'max':
+        elif xt == 'max':
             xt = numpy.zeros((1, xp.shape[1]))
             max_flag = True
 
@@ -606,7 +607,7 @@ def coshifta(xt, xp, ref_w=0, n=numpy.array([1, 2, 3]), fill_with_previous=True,
     else:
         filling = numpy.nan
 
-    if xt == 'average':
+    if isinstance(xt, str) and xt == 'average':
         xt = nanmean(xp, axis=0)
 
     # Make two dimensional
@@ -625,7 +626,7 @@ def coshifta(xt, xp, ref_w=0, n=numpy.array([1, 2, 3]), fill_with_previous=True,
     if mt != mp:
         raise(Exception, 'Target "xt" and sample "xp" must be of compatible size (%d, %d)' % (mt, mp) )
 
-    if numpy.any(n <= 0):
+    if not isinstance(n, str) and numpy.any(n <= 0):
         raise(Exception, 'shift(s) "n" must be larger than zero')
 
     if nr != 1:
@@ -674,7 +675,7 @@ def coshifta(xt, xp, ref_w=0, n=numpy.array([1, 2, 3]), fill_with_previous=True,
 
     ind_blocks = sam_xblock[numpy.ones(n_blocks, dtype=bool)]
     ind_blocks[0:int(np % sam_xblock)] = sam_xblock + 1
-    ind_blocks = numpy.array([0, numpy.cumsum(ind_blocks, 0)]).flatten()
+    ind_blocks = numpy.array([0, numpy.cumsum(ind_blocks, 0)], dtype=ind_blocks.dtype).flatten()
 
     if auto == 1:
         while auto == 1:
@@ -711,7 +712,7 @@ def coshifta(xt, xp, ref_w=0, n=numpy.array([1, 2, 3]), fill_with_previous=True,
             temp_index = range(-n, n+1)
 
             for i_sam in range(0, np):
-                index = numpy.flatnonzero(temp_index == ind[i_sam])
+                index = numpy.flatnonzero(temp_index == ind[i_sam])[0]
                 t_index = range(index, index+mp)
                 xw[i_sam, :] = [xtemp[i_sam, j]  for j in t_index]
 
@@ -811,8 +812,8 @@ def cc_fft_shift(t, x=False, options=numpy.array([])):
 
     ord_ = numpy.array(
         [time_dim] +
-        range(1, time_dim) +
-        range(time_dim, len(x.shape) - 1) +
+        list(range(1, time_dim)) +
+        list(range(time_dim, len(x.shape) - 1)) +
         [0]
     ).T
 
@@ -876,15 +877,15 @@ def cc_fft_shift(t, x=False, options=numpy.array([])):
     shift = numpy.arange(options[0], options[1] + 1)
 
     if (options[0] < 0) and (options[1] > 0):
-        ind = range(int(len_fft + options[0]), int(len_fft)) + \
-            range(0,  int(options[1] + 1))
+        ind = list(range(int(len_fft + options[0]), int(len_fft))) + \
+            list(range(0,  int(options[1] + 1)))
 
     elif (options[0] < 0) and (options[1] < 0):
-        ind = range(len_fft + options[0], (len_fft + options[1] + 1))
+        ind = list(range(len_fft + options[0], (len_fft + options[1] + 1)))
 
     elif (options[0] < 0) and (options[1] == 0):
-        ind = range(int(len_fft + options[0]),
-                    int(len_fft + options[1] + 1)) + [1]
+        ind = list(range(int(len_fft + options[0]),
+                    int(len_fft + options[1] + 1))) + [1]
 
     else:
         # ind = Options(1) + 1:Options(2) + 1
